@@ -58,4 +58,12 @@ public class TaskService {
         }
         return false;
     }
+
+    public TaskCount getTaskCount() {
+        long total = tasks.size();
+        long done = tasks.stream()
+                .filter(Task::done)
+                .count();
+        return new TaskCount(total, done);
+    }
 }
