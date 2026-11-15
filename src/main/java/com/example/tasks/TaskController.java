@@ -21,6 +21,11 @@ public class TaskController {
         return taskService.getAllTasks(done);
     }
 
+    @GetMapping("/tasks/count")
+    public TaskCount getTaskCount() {
+        return taskService.getTaskCount();
+    }
+
     @GetMapping("/tasks/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable long id) {
         return taskService.getTaskById(id)

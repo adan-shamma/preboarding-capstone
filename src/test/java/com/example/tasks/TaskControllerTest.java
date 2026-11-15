@@ -196,4 +196,55 @@ public class TaskControllerTest {
                 """))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void getTaskCountReturnsInitialCounts() throws Exception {
+        mockMvc.perform(get("/tasks/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.done").value(0));
+    }
+
+    @Test
+    void getTaskCountReflectsAddedAndCompletedTasks() throws Exception {
+        mockMvc.perform(post("/tasks").contentType("application/json").content("""
+                    {
+                        "title": "Completed Task",
+                        "done": true
+                    }
+                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/tasks/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(2))
+                .andExpect(jsonPath("$.done").value(1));
+    }
+
+    @Test
+    void getTaskCountWhenAllTasksDeleted() throws Exception {
+        mockMvc.perform(delete("/tasks/1"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/tasks/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(0))
+                .andExpect(jsonPath("$.done").value(0));
+    }
+
+    @Test
+    void getTaskCountReflectsUpdatedTaskStatus() throws Exception {
+        mockMvc.perform(put("/tasks/1").contentType("application/json").content("""
+                    {
+                        "title": "Learn Spring Boot",
+                        "done": true
+                    }
+                """))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/tasks/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.done").value(1));
+    }
 }
